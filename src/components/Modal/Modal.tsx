@@ -16,6 +16,21 @@ export const Modal = ({ note, onClose }: ModalProps) => {
 	const debouncedValue = useDebounce(inputValue, 1000);
 	const previousValue = useRef<string>(note.body ?? '');
 
+	const handleOnChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+		setInputValue(event.target.value);
+		localStorage.setItem('note-edit', event.target.value);
+	};
+
+	const handleOnClose = () => {
+		localStorage.removeItem('note-id');
+		localStorage.removeItem('note-edit');
+		onClose();
+	};
+
+	useEffect(() => {
+		localStorage.setItem('note-id', note.id);
+	}, [note.id]);
+
 	useEffect(() => {
 		if (debouncedValue && debouncedValue !== previousValue.current) {
 			saveNote(debouncedValue);
@@ -32,31 +47,18 @@ export const Modal = ({ note, onClose }: ModalProps) => {
 	}, []);
 
 	return (
-		<div className='fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-row w-[800px] max-w-[800px] h-[600px] rounded-md bg-white'>
+		<div className='fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-row w-full max-w-[800px] h-screen md:h-[600px] rounded-md bg-white'>
 			<div className='flex flex-col justify-between items-center py-4 w-24'>
 				<ul className='flex flex-col gap-2 justify-center w-12 bg-white'>
-					<li>
-						<Image src={SurfeOption} alt='' draggable={false} />
-					</li>
-					<li>
-						<Image src={SurfeOption} alt='' draggable={false} />
-					</li>
-					<li>
-						<Image src={SurfeOption} alt='' draggable={false} />
-					</li>
-					<li>
-						<Image src={SurfeOption} alt='' draggable={false} />
-					</li>
-					<li>
-						<Image src={SurfeOption} alt='' draggable={false} />
-					</li>
-					<li>
-						<Image src={SurfeOption} alt='' draggable={false} />
-					</li>
+					{Array.from({ length: 6 }).map((_, index) => (
+						<li key={index}>
+							<Image src={SurfeOption} alt='' draggable={false} />
+						</li>
+					))}
 				</ul>
 				<button
-					className='bg-secondary text-white p-2 rounded-lg'
-					onClick={onClose}
+					className='bg-secondary font-semibold text-white p-2 rounded-lg'
+					onClick={handleOnClose}
 				>
 					Close
 				</button>
@@ -66,7 +68,7 @@ export const Modal = ({ note, onClose }: ModalProps) => {
 					style={{ resize: 'none' }}
 					className='w-full h-full bg-primary p-4 focus-visible:outline-none'
 					value={inputValue}
-					onChange={(e) => setInputValue(e.target.value)}
+					onChange={(e) => handleOnChange(e)}
 				/>
 			</div>
 		</div>
