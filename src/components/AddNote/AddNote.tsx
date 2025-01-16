@@ -11,7 +11,7 @@ export const AddNote = ({ onCreateNote }: AddNoteProps) => {
 
 	const handleAddNote = async () => {
 		try {
-			await createNote(); 
+			await createNote();
 			onCreateNote();
 		} catch (error) {
 			console.error('Error creating note:', error);
@@ -21,7 +21,7 @@ export const AddNote = ({ onCreateNote }: AddNoteProps) => {
 	return (
 		<button
 			onClick={handleAddNote}
-			className='p-4 font-bold rounded-md bg-secondary text-white'
+			className='p-3 font-bold rounded-md bg-sky300 text-secondary'
 		>
 			Create note
 		</button>

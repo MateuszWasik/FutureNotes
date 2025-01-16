@@ -21,6 +21,9 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang='en' className='light'>
+			<head>
+				
+			</head>
 			<body className={`${inter_init.className} bg-sky100 antialiased`}>
 				{children}
 			</body>

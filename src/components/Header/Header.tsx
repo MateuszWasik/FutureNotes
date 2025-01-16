@@ -9,15 +9,24 @@ type HeaderProps = {
 
 export const Header = ({ onCreateNote }: HeaderProps) => {
 	return (
-		<header className='flex flex-row items-center justify-between w-full h-28'>
+		<header className='flex flex-col md:flex-row items-center justify-between w-full h-auto md:h-28 gap-4'>
 			<div className='flex flex-row gap-2 items-center'>
-				<Image src={SurfeLogo} alt='' width={150} height={50} />
-				<span className='text-[60px] font-bold bg-secondary text-white'>
+				<Image
+					src={SurfeLogo}
+					alt=''
+					width={150}
+					height={50}
+					className='w-[100px] md:w-[150px] h-[30px] md:h-[50px]'
+				/>
+				<span className='text-xl p-2 md:p-4 md:text-[60px] font-bold bg-secondary text-white'>
 					Notes
 				</span>
 			</div>
-			<AddNote onCreateNote={onCreateNote} />
-			<Logout />
+
+			<div className='flex flex-1 justify-between w-full'>
+				<AddNote onCreateNote={onCreateNote} />
+				<Logout />
+			</div>
 		</header>
 	);
 };
