@@ -3,22 +3,13 @@ import { Header } from '@/components/Header/Header';
 import { Modal } from '@/components/Modal/Modal';
 import { SingleNote } from '@/components/SingleNote/SingleNote';
 import { Note, useGetNote } from '@/hooks/useGet';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { createPortal } from 'react-dom';
 
 export default function Dashboard() {
 	const [showModal, setShowModal] = useState(false);
-	const [clickedNote, setClickedNote] = useState<Note>({});
+	const [clickedNote, setClickedNote] = useState<Note>({ id: '', body: '' });
 	const { notes, reloadNotes } = useGetNote();
-
-	// useEffect(() => {
-	// 	const isNoteIdInLocalStorage = localStorage.getItem('note-id');
-	// 	const isNoteInLocalStorage = localStorage.getItem('note-edit');
-
-	// 	if (isNoteIdInLocalStorage && isNoteInLocalStorage) {
-	// 		setSavedNote({ id: isNoteIdInLocalStorage, body: isNoteInLocalStorage });
-	// 	}
-	// }, []);
 
 	const handleOnNoteOpen = (note: Note) => {
 		setShowModal(true);
