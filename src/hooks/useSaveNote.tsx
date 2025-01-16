@@ -12,11 +12,6 @@ export const useSaveNote = (noteId: string) => {
 				return;
 			}
 
-			if (!noteId) {
-				console.error('No note ID found');
-				return;
-			}
-
 			const fetchOptions = {
 				method: 'PUT',
 				headers: {
