@@ -28,8 +28,12 @@ export const Modal = ({ note, onClose }: ModalProps) => {
 	};
 
 	useEffect(() => {
-		localStorage.setItem('note-id', note.id);
-	}, [note.id]);
+		if (!localStorage.getItem('note-id')) {
+			localStorage.setItem('note-id', note.id);
+		}
+
+		localStorage.setItem('note-edit', debouncedValue);
+	}, [note.id, debouncedValue]);
 
 	useEffect(() => {
 		if (debouncedValue && debouncedValue !== previousValue.current) {
@@ -47,7 +51,7 @@ export const Modal = ({ note, onClose }: ModalProps) => {
 	}, []);
 
 	return (
-		<div className='fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-row w-full max-w-[800px] h-screen md:h-[600px] rounded-md bg-white'>
+		<div className='fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-row w-full max-w-[800px] h-dvh md:h-[600px] rounded-md bg-white'>
 			<div className='flex flex-col justify-between items-center py-4 w-24'>
 				<ul className='flex flex-col gap-2 justify-center w-12 bg-white'>
 					{Array.from({ length: 6 }).map((_, index) => (
