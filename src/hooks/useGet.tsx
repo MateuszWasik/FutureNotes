@@ -8,7 +8,7 @@ export type Note = {
 };
 
 export const useGetNote = () => {
-	const [notes, setNotes] = useState<Note[]>();
+	const [notes, setNotes] = useState<Note[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(false);
 	const [reload, setReload] = useState(false);
