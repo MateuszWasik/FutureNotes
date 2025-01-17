@@ -7,6 +7,12 @@ type MentionTextareaProps = {
 	note: Note;
 };
 
+type User = {
+	first_name: string;
+	last_name: string;
+	username: string;
+};
+
 export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 	const [inputValue, setInputValue] = useState(note.body ?? '');
 	const [inputValueAsHTML, setInputValueAsHTML] = useState(note.body ?? '');
@@ -17,16 +23,42 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 
 	const [showSuggestions, setShowSuggestions] = useState(false);
 	const [caretCoordinates, setCaretCoordinates] = useState({ top: 0, left: 0 });
-	const [users] = useState([
-		'John Doe',
-		'Jane Smith',
-		'Alice Johnson',
-		'Mateusz Ja',
-		'Radomir Ty',
-		'Agata Ona',
-		'Mis Uszat',
-	]);
+	const mockUsers: User[] = [
+		{
+			first_name: 'Jane',
+			last_name: 'Smith',
+			username: 'Jane123',
+		},
+		{
+			first_name: 'Alice',
+			last_name: 'Johnson',
+			username: 'Alice123',
+		},
+		{
+			first_name: 'Mateusz',
+			last_name: 'Ja',
+			username: 'Mateusz123',
+		},
+		{
+			first_name: 'Radomir',
+			last_name: 'Ty',
+			username: 'Radomir123',
+		},
+		{
+			first_name: 'Agata',
+			last_name: 'Ona',
+			username: 'Agata123',
+		},
+		{
+			first_name: 'Mis',
+			last_name: 'Uszat',
+			username: 'Mis123',
+		},
+	];
+	const [mentionUsers, setMentionUsers] = useState<User[]>(mockUsers);
 	const contentEditableDivRef = useRef<HTMLDivElement>(null);
+	const isMentionTypingRef = useRef(false);
+	const caretPositionWhenStartMentioning = useRef(0);
 
 	useEffect(() => {
 		if (contentEditableDivRef.current) {
@@ -73,6 +105,8 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 
 		if (caretPosition) {
 			if (userText[caretPosition - 1] === '@') {
+				isMentionTypingRef.current = true;
+				caretPositionWhenStartMentioning.current = caretPosition;
 				const caretCoord = {
 					top:
 						window.getSelection()?.getRangeAt(0).getBoundingClientRect().top ||
@@ -93,6 +127,21 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 				setShowSuggestions(true);
 			}
 		}
+
+		if (isMentionTypingRef.current === true) {
+			const mentionUser = mockUsers.filter(({ username }) =>
+				username
+					.toLowerCase()
+					.includes(
+						userText
+							.slice(caretPositionWhenStartMentioning.current, caretPosition)
+							.toLowerCase()
+					)
+			);
+
+			setMentionUsers(mentionUser);
+		}
+
 		handleOnChange(event as React.ChangeEvent<HTMLDivElement>);
 	};
 
@@ -102,6 +151,8 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 			const userText = contentEditableDivRef.current?.textContent;
 
 			if (userText?.[caretPosition - 1] === '@') {
+				caretPositionWhenStartMentioning.current = 0;
+				isMentionTypingRef.current = false;
 				setShowSuggestions(false);
 			}
 		}
@@ -109,7 +160,7 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 
 	const getCaretCharacterOffsetWithin = (element: HTMLElement) => {
 		let caretOffset = 0;
-		if (typeof window.getSelection != 'undefined') {
+		if (typeof window.getSelection !== 'undefined') {
 			const windowSelection = window.getSelection();
 			const windowSelectionRange = window.getSelection()?.getRangeAt(0);
 
@@ -160,15 +211,15 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 						left: caretCoordinates.left + 10,
 					}}
 				>
-					{users.map((user, index) => {
+					{mentionUsers.map((user, index) => {
 						if (index >= 5) return;
 						return (
 							<li
-								key={user}
+								key={user.username}
 								className='p-2 hover:bg-gray-200'
 								onClick={() => setShowSuggestions(false)}
 							>
-								{user}
+								{user.username}
 							</li>
 						);
 					})}
