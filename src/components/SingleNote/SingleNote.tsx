@@ -3,6 +3,7 @@
 import { Note } from '@/hooks/useGet';
 import Image from 'next/image';
 import SurfeLogo from '@images/surfe_black_logo.webp';
+import { useEffect, useRef } from 'react';
 
 type SingleNoteProps = {
 	note: Note;
@@ -10,6 +11,13 @@ type SingleNoteProps = {
 };
 
 export const SingleNote = ({ note, onClick }: SingleNoteProps) => {
+	const preview = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		if (preview.current) {
+			preview.current.innerHTML = note.body ?? '';
+		}
+	}, []);
 	const handleOnClick = () => {
 		onClick(note);
 	};
@@ -27,9 +35,7 @@ export const SingleNote = ({ note, onClick }: SingleNoteProps) => {
 						<span className='font-semibold  text-lg md:text-xl'>Notes</span>
 					</div>
 				</div>
-				<div className='text-wrap overflow-hidden'>
-					<p>{note.body.slice(0, 100)}</p>
-				</div>
+				<div ref={preview} className='text-wrap overflow-hidden' />
 			</div>
 		</>
 	);
