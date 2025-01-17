@@ -1,46 +1,20 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect } from 'react';
 import Image from 'next/image';
 
 import SurfeOption from '@images/surfe_option.webp';
-import { useDebounce } from '@/hooks/useDebounce';
 import { Note } from '@/hooks/useGet';
-import { useSaveNote } from '@/hooks/useSaveNote';
+import { MentionTextarea } from '../TextAreaWithMention/TextAreaWithMention';
 
 type ModalProps = {
 	note: Note;
 	onClose: () => void;
 };
 export const Modal = ({ note, onClose }: ModalProps) => {
-	const [inputValue, setInputValue] = useState(note.body ?? '');
-	const saveNote = useSaveNote(note.id);
-	const debouncedValue = useDebounce(inputValue, 1000);
-	const previousValue = useRef<string>(note.body ?? '');
-
-	const handleOnChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-		setInputValue(event.target.value);
-		localStorage.setItem('note-edit', event.target.value);
-	};
-
 	const handleOnClose = () => {
 		localStorage.removeItem('note-id');
 		localStorage.removeItem('note-edit');
 		onClose();
 	};
-
-	useEffect(() => {
-		if (!localStorage.getItem('note-id')) {
-			localStorage.setItem('note-id', note.id);
-		}
-
-		localStorage.setItem('note-edit', debouncedValue);
-	}, [note.id, debouncedValue]);
-
-	useEffect(() => {
-		if (debouncedValue && debouncedValue !== previousValue.current) {
-			saveNote(debouncedValue);
-			previousValue.current = debouncedValue;
-		}
-	}, [debouncedValue, saveNote, inputValue]);
 
 	useEffect(() => {
 		document.body.classList.add('modal-open');
@@ -68,12 +42,7 @@ export const Modal = ({ note, onClose }: ModalProps) => {
 				</button>
 			</div>
 			<div className='p-4 pl-0 w-full'>
-				<textarea
-					style={{ resize: 'none' }}
-					className='w-full h-full bg-primary p-4 focus-visible:outline-none'
-					value={inputValue}
-					onChange={(e) => handleOnChange(e)}
-				/>
+				<MentionTextarea note={note} />
 			</div>
 		</div>
 	);
