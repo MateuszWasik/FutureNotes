@@ -14,7 +14,6 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 	const debouncedValue = useDebounce(inputValueAsHTML, 500);
 	const previousValue = useRef<string>(note.body ?? '');
 	const [carretsOffsetPosition, setCarretsOffsetPosition] = useState(0);
-	const [mention, setMention] = useState('');
 
 	const [showSuggestions, setShowSuggestions] = useState(false);
 	const [caretCoordinates, setCaretCoordinates] = useState({ top: 0, left: 0 });
