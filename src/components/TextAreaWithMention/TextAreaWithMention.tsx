@@ -9,8 +9,9 @@ type MentionTextareaProps = {
 
 export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 	const [inputValue, setInputValue] = useState(note.body ?? '');
+	const [inputValueAsHTML, setInputValueAsHTML] = useState(note.body ?? '');
 	const saveNote = useSaveNote(note.id);
-	const debouncedValue = useDebounce(inputValue, 500);
+	const debouncedValue = useDebounce(inputValueAsHTML, 500);
 	const previousValue = useRef<string>(note.body ?? '');
 	const [carretsOffsetPosition, setCarretsOffsetPosition] = useState(0);
 
@@ -27,10 +28,19 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 	]);
 	const contentEditableDivRef = useRef<HTMLDivElement>(null);
 
+	useEffect(() => {
+		if (contentEditableDivRef.current) {
+			contentEditableDivRef.current.innerHTML = inputValueAsHTML;
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
 	const handleOnChange = (event: React.ChangeEvent<HTMLDivElement>) => {
+		const textValueAsHTML = event.target.innerHTML;
 		const textValue = event.target.textContent;
 		if (textValue === null) return;
 		setInputValue(textValue);
+		setInputValueAsHTML(textValueAsHTML);
 		localStorage.setItem('note-edit', textValue);
 	};
 
@@ -54,17 +64,15 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 
 		if (userText === null || contentEditableDivRef.current === null) return;
 
-		const caretPosition = window.getSelection()?.anchorOffset || 0;
+		const caretPosition = getCaretCharacterOffsetWithin(
+			contentEditableDivRef.current
+		);
 		const divPosition = contentEditableDivRef.current?.getBoundingClientRect();
 
 		if (divPosition === undefined) return;
 
 		if (caretPosition) {
-			if (
-				userText[
-					getCaretCharacterOffsetWithin(contentEditableDivRef.current) - 1
-				] === '@'
-			) {
+			if (userText[caretPosition - 1] === '@') {
 				const caretCoord = {
 					top:
 						window.getSelection()?.getRangeAt(0).getBoundingClientRect().top ||
@@ -131,13 +139,13 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 	return (
 		<div className='relative h-full w-full'>
 			<div
-				className=' w-full max-w-[700px] h-full overflow-y-scroll whitespace-pre-wrap break-words  border focus-visible:outline-none border-gray-300 rounded-md p-3'
+				className=' w-full max-w-[700px] h-full p-3 overflow-y-scroll whitespace-pre-wrap break-words border border-gray-300 rounded-md focus-visible:outline-none'
 				contentEditable
 				ref={contentEditableDivRef}
 				onKeyDown={handleOnKeyDown}
 				onInput={handleOnInput}
-				onKeyUp={showCaretPos}
 				onMouseUp={showCaretPos}
+				onKeyUp={showCaretPos}
 			></div>
 
 			<div className='absolute bottom-0 left-1'>
@@ -145,8 +153,8 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 			</div>
 
 			{showSuggestions && (
-				<div
-					className='absolute bg-white shadow-md w-[200px]'
+				<ul
+					className='absolute cursor-pointer bg-white shadow-md w-[200px]'
 					style={{
 						top: caretCoordinates.top + 20,
 						left: caretCoordinates.left + 10,
@@ -155,16 +163,16 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 					{users.map((user, index) => {
 						if (index >= 5) return;
 						return (
-							<div
+							<li
 								key={user}
 								className='p-2 hover:bg-gray-200'
 								onClick={() => setShowSuggestions(false)}
 							>
 								{user}
-							</div>
+							</li>
 						);
 					})}
-				</div>
+				</ul>
 			)}
 		</div>
 	);
