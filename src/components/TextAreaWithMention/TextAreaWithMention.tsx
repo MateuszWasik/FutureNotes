@@ -99,7 +99,6 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 		}
 	};
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const getCaretCharacterOffsetWithin = (element: HTMLElement) => {
 		let caretOffset = 0;
 		if (typeof window.getSelection != 'undefined') {
