@@ -5,7 +5,6 @@ import { useSaveNote } from '@/hooks/useSaveNote';
 import React, { useState, useRef, useEffect } from 'react';
 import { filterMentionUsers } from './utils/filterMentionUsers';
 import { createMentionSpan } from './utils/createMentionSpan';
-import { calculateCaretOffset } from './utils/calculateCaretOffset';
 import { placeMentionAtProperPosition } from './utils/placeMentionAtProperPosition';
 
 type MentionTextareaProps = {
@@ -122,11 +121,10 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 			// if user typed something after @
 			// otherwise we will keep the caret position as it is
 			const caretPositionBeforeAtSign =
-				typedMentionByUserRef.current === 0
-					? caretPositionWhenStartMentioning.current - 1
-					: caretPositionWhenStartMentioning.current;
-			typedMentionByUserRef.current = caretPosition - caretPositionBeforeAtSign;
+				caretPositionWhenStartMentioning.current - 1;
 
+			typedMentionByUserRef.current =
+				caretPosition - 1 - caretPositionBeforeAtSign;
 			setMentionUsers(mentionUser);
 		}
 
@@ -157,7 +155,7 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 			if (currentNode.nodeType === Node.TEXT_NODE) {
 				const parentElement = currentNode.parentElement;
 
-				// if inside a parent element (like a span or div), insert the new div 
+				// if inside a parent element (like a span or div), insert the new div
 				// after the current node
 				if (parentElement) {
 					const parentDiv = parentElement.closest('div');
@@ -192,7 +190,7 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 			);
 			const userText = contentEditableDivRef.current?.textContent;
 
-			// we need to check if user deletes the @ symbol to close the 
+			// we need to check if user deletes the @ symbol to close the
 			// suggestion box and reset all the supported states
 			if (userText?.[caretPosition - 1] === '@') {
 				caretPositionWhenStartMentioning.current = 0;
@@ -235,18 +233,12 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 		const selection = window.getSelection();
 		if (!selection || selection.rangeCount === 0) return;
 
-		const range = selection.getRangeAt(0);
-
-		// calculate true caret position inside the correct node including html tags
-		const caretPosition = calculateCaretOffset(contentEditableDiv, range);
-
 		const mentionSpan = createMentionSpan(clickedUser);
 
 		const insertedMention = placeMentionAtProperPosition(
 			contentEditableDiv,
-			caretPosition - 1, // -1 because we want to move caret at the position of @ that was typed
-			mentionSpan,
-			typedMentionByUserRef.current
+			caretPositionWhenStartMentioning.current - 1, // -1 because we want to move caret at the position of @ that was typed
+			mentionSpan
 		);
 
 		if (insertedMention) {
