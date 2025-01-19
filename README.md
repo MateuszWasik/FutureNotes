@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📝 SurfeNotes App Challenge
 
-## Getting Started
+This repository contains a note-taking application built as part of a coding challenge for **Surfe**. The app includes core features like saving and loading notes, as well as an @mention functionality. Additionally, it includes a login page and a theme selector for toggling between light and dark modes.
 
-First, run the development server:
+## 🚀 Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Core Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Note-Taking**
+  - A responsive text area for entering plain text notes.
+  - Auto-save functionality: notes are saved automatically when typing stops.
+  - Open note persist across page refreshes.
+- **@Mention Support**
+  - Type `@` in the text area to mention users.
+  - Shows only 5 most relevant users as you type.
+  - Mentions are styled uniquely for better visibility.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Additional Features
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Login Page**
+  - Simple login screen for accessing the app.
+- **Theme Selector**
+  - Toggle between **light mode** and **dark mode** for an improved user experience.
 
-## Learn More
+## 🔧 Tech Stack
 
-To learn more about Next.js, take a look at the following resources:
+- **Frontend Framework:** React + NextJS + TypeScript
+- **Styling:** Tailwind CSS
+- **API Integration:** Fetch API
+- **Additional Tools:** ContextAPI + CookieJS + uuid
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🛠️ Setup and Installation
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/MateuszWasik/SurfeNotes.git
+   cd SurfeNotes
+   ```
+2. Install dependecies:
 
-## Deploy on Vercel
+   ```bash
+   npm install
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3. Run the development server:
+   ```bash
+   npm run dev
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Open your browser at http://localhost:3000.
+
+## 🌐 API Endpoints
+
+The app interacts with a mock backend provided by Surfe:
+
+- **POST** `https://challenge.surfe.com/SESSION/notes`
+- **PUT** `https://challenge.surfe.com/SESSION/notes/{ID}`
+- **GET** `https://challenge.surfe.com/SESSION/notes`
+- **GET** `https://challenge.surfe.com/SESSION/notes/{ID}`
+- **GET** `https://challenge.surfe.com/users`
+
+## 📜 License
+
+This project is open-source and available under the MIT License.
