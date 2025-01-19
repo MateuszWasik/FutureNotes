@@ -10,7 +10,7 @@ export const NotesContext = createContext<InitialContextType | undefined>(
 	undefined
 );
 
-export const ContextProvider = ({ children }: PropsWithChildren) => {
+export const NotesContextProvider = ({ children }: PropsWithChildren) => {
 	const [isNoteSaving, setIsNoteSaving] = useState(false);
 
 	const updateIsNoteSaving = (newValue: boolean) => {
