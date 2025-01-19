@@ -27,7 +27,6 @@ export const useSaveNote = (noteId: string) => {
 				);
 
 				if (!response.ok) {
-					console.log('response', response);
 					throw new Error('Network response was not ok');
 				}
 			} catch (error) {

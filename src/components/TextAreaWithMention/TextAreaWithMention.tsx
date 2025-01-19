@@ -1,16 +1,12 @@
 import { useDebounce } from '@/hooks/useDebounce';
 import { Note } from '@/hooks/useGet';
+import { useGetUsers, User } from '@/hooks/useGetUsers';
 import { useSaveNote } from '@/hooks/useSaveNote';
 import React, { useState, useRef, useEffect } from 'react';
+import { filterMentionUsers } from './utils/filterMentionUsers';
 
 type MentionTextareaProps = {
 	note: Note;
-};
-
-type User = {
-	first_name: string;
-	last_name: string;
-	username: string;
 };
 
 export const MentionTextarea = ({ note }: MentionTextareaProps) => {
@@ -19,46 +15,20 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 	const saveNote = useSaveNote(note.id);
 	const debouncedValue = useDebounce(inputValueAsHTML, 500);
 	const previousValue = useRef<string>(note.body ?? '');
-	const [carretsOffsetPosition, setCarretsOffsetPosition] = useState(0);
 
 	const [showSuggestions, setShowSuggestions] = useState(false);
-	const [caretCoordinates, setCaretCoordinates] = useState({ top: 0, left: 0 });
-	const mockUsers: User[] = [
-		{
-			first_name: 'Jane',
-			last_name: 'Smith',
-			username: 'Jane123',
-		},
-		{
-			first_name: 'Alice',
-			last_name: 'Johnson',
-			username: 'Alice123',
-		},
-		{
-			first_name: 'Mateusz',
-			last_name: 'Ja',
-			username: 'Mateusz123',
-		},
-		{
-			first_name: 'Radomir',
-			last_name: 'Ty',
-			username: 'Radomir123',
-		},
-		{
-			first_name: 'Agata',
-			last_name: 'Ona',
-			username: 'Agata123',
-		},
-		{
-			first_name: 'Mis',
-			last_name: 'Uszat',
-			username: 'Mis123',
-		},
-	];
-	const [mentionUsers, setMentionUsers] = useState<User[]>(mockUsers);
+	const [caretAbsoluteCoordinates, setCaretAbsoluteCoordinates] = useState({
+		top: 0,
+		left: 0,
+	});
+	const surfeNotesUsers = useGetUsers();
+	const [mentionUsers, setMentionUsers] = useState<User[]>(
+		surfeNotesUsers ?? []
+	);
 	const contentEditableDivRef = useRef<HTMLDivElement>(null);
 	const isMentionTypingRef = useRef(false);
 	const caretPositionWhenStartMentioning = useRef(0);
+	const typedMentionByUserRef = useRef(0);
 
 	useEffect(() => {
 		if (contentEditableDivRef.current) {
@@ -107,6 +77,9 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 			if (userText[caretPosition - 1] === '@') {
 				isMentionTypingRef.current = true;
 				caretPositionWhenStartMentioning.current = caretPosition;
+
+				// we need absolute coordinates of the caret position for
+				// suggestion box to appear at the correct position
 				const caretCoord = {
 					top:
 						window.getSelection()?.getRangeAt(0).getBoundingClientRect().top ||
@@ -119,7 +92,7 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 					top: divPosition.top,
 					left: divPosition.left,
 				};
-				setCaretCoordinates({
+				setCaretAbsoluteCoordinates({
 					top: caretCoord.top - textareaDivCoordinates.top,
 					left: caretCoord.left - textareaDivCoordinates.left,
 				});
@@ -129,15 +102,17 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 		}
 
 		if (isMentionTypingRef.current === true) {
-			const mentionUser = mockUsers.filter(({ username }) =>
-				username
-					.toLowerCase()
-					.includes(
-						userText
-							.slice(caretPositionWhenStartMentioning.current, caretPosition)
-							.toLowerCase()
-					)
+			const mentionUser = filterMentionUsers(
+				surfeNotesUsers,
+				userText,
+				caretPositionWhenStartMentioning.current,
+				caretPosition
 			);
+
+			// we want to watch how many characters user typed after @
+			// so we can adjust the caret position when user selects a user from the list
+			typedMentionByUserRef.current =
+				caretPositionWhenStartMentioning.current - caretPosition;
 
 			setMentionUsers(mentionUser);
 		}
@@ -146,13 +121,70 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 	};
 
 	const handleOnKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+		if (event.key === 'Enter') {
+			event.preventDefault();
+
+			const selection = window.getSelection();
+			if (!selection || selection.rangeCount === 0) {
+				console.error('No valid selection');
+				return;
+			}
+
+			const range = selection.getRangeAt(0);
+			const currentNode = range.startContainer;
+
+			// we want to create a new div/span element after the current node but inside the parent div
+			const newDiv = document.createElement('div');
+			const newSpan = document.createElement('span');
+			newSpan.textContent = ' ';
+			newDiv.appendChild(newSpan);
+
+			// checking if the currentNode is a TEXT_NODE or ELEMENT_NODE and handle it
+			// setStart/endStart behaviour diffently for TEXT_NODE and ELEMENT_NODE
+			if (currentNode.nodeType === Node.TEXT_NODE) {
+				const parentElement = currentNode.parentElement;
+
+				// if inside a parent element (like a span or div), insert the new div after the current node
+				if (parentElement) {
+					const parentDiv = parentElement.closest('div');
+					if (parentDiv) {
+						parentDiv.parentNode?.insertBefore(newDiv, parentDiv.nextSibling);
+
+						// Move the caret to the new span inside the new div
+						const newRange = document.createRange();
+						newRange.setStart(newSpan, 0);
+						newRange.setEnd(newSpan, 0);
+						selection.removeAllRanges();
+						selection.addRange(newRange);
+					}
+				}
+			} else if (currentNode.nodeType === Node.ELEMENT_NODE) {
+				// if we're directly inside an element (e.g., div)
+				// we will insert the new div after it
+				currentNode.parentNode?.insertBefore(newDiv, currentNode.nextSibling);
+
+				// move the caret to the new span inside the new div
+				const newRange = document.createRange();
+				newRange.setStart(newSpan, 0);
+				newRange.setEnd(newSpan, 0);
+				selection.removeAllRanges();
+				selection.addRange(newRange);
+			}
+		}
+
 		if (event.key === 'Backspace') {
-			const caretPosition = window.getSelection()?.anchorOffset || 0;
+			const caretPosition = getCaretCharacterOffsetWithin(
+				contentEditableDivRef.current as HTMLElement
+			);
 			const userText = contentEditableDivRef.current?.textContent;
 
 			if (userText?.[caretPosition - 1] === '@') {
 				caretPositionWhenStartMentioning.current = 0;
+
+				// reset all the mention typing "states"
 				isMentionTypingRef.current = false;
+				typedMentionByUserRef.current = 0;
+
 				setShowSuggestions(false);
 			}
 		}
@@ -178,13 +210,121 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 		return caretOffset;
 	};
 
-	const showCaretPos = () => {
-		if (contentEditableDivRef.current === null) return;
-		setCarretsOffsetPosition(
-			getCaretCharacterOffsetWithin(
-				contentEditableDivRef.current as HTMLElement
-			)
+	const handleInsertMention = (event: React.MouseEvent<HTMLLIElement>) => {
+		const clickedUser = (event.target as HTMLLIElement).textContent;
+		if (clickedUser === null) return;
+
+		const contentEditableDiv = contentEditableDivRef.current;
+		if (!contentEditableDiv) return;
+
+		const selection = window.getSelection();
+		if (!selection || selection.rangeCount === 0) return;
+
+		const range = selection.getRangeAt(0);
+
+		// calculate true caret position inside the correct node including html tags
+		const caretPosition = calculateCaretOffset(contentEditableDiv, range);
+
+		const mentionSpan = document.createElement('span');
+		mentionSpan.contentEditable = 'false';
+		mentionSpan.className =
+			'capitalize font-bold pointer-events-none select-none inline-block';
+		mentionSpan.textContent = `@${clickedUser}`;
+		mentionSpan.id = new Date().getTime().toString();
+
+		// check if the span is empty and remove leading @ before inserting new mention span
+		const selectionText = range.startContainer.textContent;
+		if (selectionText && selectionText.startsWith('@')) {
+			range.startContainer.textContent = selectionText.slice(1);
+		}
+
+		const insertedMention = placeMentionAtCaret(
+			contentEditableDiv,
+			caretPosition - 1, // -1 because we want to move caret at the position of @ that was typed
+			mentionSpan
 		);
+
+		if (insertedMention) {
+			// this will create a new Range and set caret position after new mention span
+			const newRange = document.createRange();
+			newRange.setStartAfter(insertedMention);
+			newRange.setEndAfter(insertedMention);
+
+			selection.removeAllRanges();
+			selection.addRange(newRange);
+
+			setShowSuggestions(false);
+			setInputValueAsHTML(contentEditableDivRef.current?.innerHTML ?? '');
+		} else {
+			console.error('Failed to insert mention span');
+		}
+	};
+
+	const calculateCaretOffset = (parent: HTMLElement, range: Range): number => {
+		let offset = 0;
+
+		const traverse = (node: Node) => {
+			if (node === range.startContainer) {
+				offset += range.startOffset;
+				// found the correct node
+				return true;
+			}
+
+			if (node.nodeType === Node.TEXT_NODE) {
+				offset += node.textContent?.length || 0;
+			} else if (node.nodeType === Node.ELEMENT_NODE) {
+				for (const child of Array.from(node.childNodes)) {
+					if (traverse(child)) return true;
+				}
+			}
+			return false;
+		};
+
+		traverse(parent);
+		return offset;
+	};
+
+	const placeMentionAtCaret = (
+		parent: HTMLElement,
+		position: number,
+		mentionSpan: HTMLSpanElement
+	): HTMLSpanElement | null => {
+		let offset = 0;
+
+		const traverseAndInsert = (node: Node): boolean => {
+			if (node.nodeType === Node.TEXT_NODE) {
+				const textLength = node.textContent?.length || 0;
+				if (offset + textLength >= position) {
+					const splitPos = position - offset;
+					const beforeText = node.textContent?.slice(0, splitPos) || '';
+					// skip the '@'
+					const afterText = node.textContent?.slice(splitPos + 1) || '';
+
+					const textNode = node as Text;
+					const beforeNode = document.createTextNode(beforeText);
+					const afterNode = document.createTextNode(afterText);
+
+					const parentNode = node.parentNode;
+					if (parentNode) {
+						// replace original text with afterNode
+						parentNode.replaceChild(afterNode, textNode);
+						parentNode.insertBefore(mentionSpan, afterNode);
+						parentNode.insertBefore(beforeNode, mentionSpan);
+
+						return true; // Mention inserted
+					}
+				}
+				offset += textLength;
+			} else if (node.nodeType === Node.ELEMENT_NODE) {
+				for (const child of Array.from(node.childNodes)) {
+					if (traverseAndInsert(child)) return true;
+				}
+			}
+			return false;
+		};
+
+		const inserted = traverseAndInsert(parent);
+		return inserted ? mentionSpan : null;
 	};
 
 	return (
@@ -195,20 +335,14 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 				ref={contentEditableDivRef}
 				onKeyDown={handleOnKeyDown}
 				onInput={handleOnInput}
-				onMouseUp={showCaretPos}
-				onKeyUp={showCaretPos}
 			></div>
-
-			<div className='absolute bottom-0 left-1'>
-				Caret position: {carretsOffsetPosition}
-			</div>
 
 			{showSuggestions && (
 				<ul
-					className='absolute cursor-pointer bg-white shadow-md w-[200px]'
+					className='absolute  cursor-default bg-white shadow-md w-[200px]'
 					style={{
-						top: caretCoordinates.top + 20,
-						left: caretCoordinates.left + 10,
+						top: caretAbsoluteCoordinates.top + 20,
+						left: caretAbsoluteCoordinates.left + 10,
 					}}
 				>
 					{mentionUsers.map((user, index) => {
@@ -217,9 +351,11 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 							<li
 								key={user.username}
 								className='p-2 hover:bg-gray-200'
-								onClick={() => setShowSuggestions(false)}
+								onClick={handleInsertMention}
 							>
-								{user.username}
+								<span className='capitalize'>
+									{user.first_name} {user.last_name}
+								</span>
 							</li>
 						);
 					})}

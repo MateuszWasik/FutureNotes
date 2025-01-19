@@ -16,7 +16,9 @@ export const useCreateNote = () => {
 			headers: {
 				'Content-Type': 'application/json',
 			},
-			body: JSON.stringify({ body: 'Note Title' }),
+			body: JSON.stringify({
+				body: '<div><span>Write your note here \u200b </span></div>',
+			}),
 		};
 
 		try {
@@ -26,7 +28,6 @@ export const useCreateNote = () => {
 			);
 
 			if (!response.ok) {
-				console.log('response', response);
 				throw new Error('Network response was not ok');
 			}
 		} catch (error) {

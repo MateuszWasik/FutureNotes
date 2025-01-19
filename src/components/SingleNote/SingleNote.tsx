@@ -17,7 +17,7 @@ export const SingleNote = ({ note, onClick }: SingleNoteProps) => {
 		if (preview.current) {
 			preview.current.innerHTML = note.body ?? '';
 		}
-	}, []);
+	}, [note]);
 	const handleOnClick = () => {
 		onClick(note);
 	};
