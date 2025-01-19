@@ -238,7 +238,8 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 		const insertedMention = placeMentionAtProperPosition(
 			contentEditableDiv,
 			caretPositionWhenStartMentioning.current - 1, // -1 because we want to move caret at the position of @ that was typed
-			mentionSpan
+			mentionSpan,
+			typedMentionByUserRef.current
 		);
 
 		if (insertedMention) {

@@ -1,7 +1,8 @@
 export const placeMentionAtProperPosition = (
 	parent: HTMLElement,
 	position: number,
-	mentionSpan: HTMLSpanElement
+	mentionSpan: HTMLSpanElement,
+	userTypedMention: number
 ): HTMLSpanElement | null => {
 	let offset = 0;
 
@@ -14,22 +15,47 @@ export const placeMentionAtProperPosition = (
 		if (node.nodeType === Node.TEXT_NODE) {
 			const textLength = node.textContent?.length || 0;
 			if (offset + textLength >= position) {
-				const splitPos = position - offset;
-				const beforeText = node.textContent?.slice(0, splitPos) || '';
-				// skip the '@'
-				const afterText = node.textContent?.slice(splitPos + 1) || '';
+				if (offset === 0) {
+					const splitAfter = position + userTypedMention + 1;
+					console.log('splitAfter', splitAfter);
+					const beforeText = node.textContent?.slice(0, position) || '';
+					// skip the '@'
+					const afterText = node.textContent?.slice(splitAfter) || '';
 
-				const textNode = node as Text;
-				const beforeNode = document.createTextNode(beforeText);
-				const afterNode = document.createTextNode(afterText);
+					console.log('beforeText:', beforeText);
+					console.log('afterText:', afterText);
 
-				const parentNode = node.parentNode;
-				if (parentNode) {
-					parentNode.replaceChild(afterNode, textNode);
-					parentNode.insertBefore(mentionSpan, afterNode);
-					parentNode.insertBefore(beforeNode, mentionSpan);
+					const textNode = node as Text;
+					const beforeNode = document.createTextNode(beforeText);
+					const afterNode = document.createTextNode(afterText);
 
-					return true;
+					const parentNode = node.parentNode;
+					if (parentNode) {
+						parentNode.replaceChild(afterNode, textNode);
+						parentNode.insertBefore(mentionSpan, afterNode);
+						parentNode.insertBefore(beforeNode, mentionSpan);
+
+						return true;
+					}
+				} else {
+					const splitPos = position - offset;
+					const splitPostAfter = splitPos + 1 + userTypedMention;
+					const beforeText = node.textContent?.slice(0, splitPos) || '';
+					// skip the '@'
+					const afterText = node.textContent?.slice(splitPostAfter) || '';
+
+					const textNode = node as Text;
+					const beforeNode = document.createTextNode(beforeText);
+					const afterNode = document.createTextNode(afterText);
+
+					const parentNode = node.parentNode;
+					if (parentNode) {
+						parentNode.replaceChild(afterNode, textNode);
+						parentNode.insertBefore(mentionSpan, afterNode);
+						parentNode.insertBefore(beforeNode, mentionSpan);
+
+						return true;
+					}
 				}
 			}
 			offset += textLength;
