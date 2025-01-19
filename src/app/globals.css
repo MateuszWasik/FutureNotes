@@ -11,13 +11,15 @@
 	--sky300: 189 237 252;
 }
 
+/* If I will have time I will make dark mode as well */
+
 .dark {
 	--background: 8 39 42;
-	--primary: 187 237 252;
-	--secondary: 8 39 42;
-	--sky100: 253 250 254;
-	--sky200: 209 242 253;
-	--sky300: 189 237 252;
+	--primary: 8 39 42;
+	--secondary: 187 237 252;
+	--sky100: 8 39 42;
+	--sky200: 8 39 42;
+	--sky300: 8 39 42;
 }
 
 body {

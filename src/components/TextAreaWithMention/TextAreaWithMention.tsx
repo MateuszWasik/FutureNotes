@@ -12,7 +12,7 @@ type MentionTextareaProps = {
 export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 	const [inputValue, setInputValue] = useState(note.body ?? '');
 	const [inputValueAsHTML, setInputValueAsHTML] = useState(note.body ?? '');
-	const saveNote = useSaveNote(note.id);
+	const { saveNote } = useSaveNote(note.id);
 	const debouncedValue = useDebounce(inputValueAsHTML, 500);
 	const previousValue = useRef<string>(note.body ?? '');
 

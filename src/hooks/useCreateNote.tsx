@@ -1,17 +1,12 @@
 'use client';
 import Cookies from 'js-cookie';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 export const useCreateNote = () => {
 	const sessionId = Cookies.get('surfenotes-id');
 
-	const createNote = useCallback(async () => {
-		if (!sessionId) {
-			console.error('No session ID found');
-			return;
-		}
-
-		const fetchOptions = {
+	const fetchOptions = useMemo(
+		() => ({
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -19,7 +14,14 @@ export const useCreateNote = () => {
 			body: JSON.stringify({
 				body: '<div><span>Write your note here \u200b </span></div>',
 			}),
-		};
+		}),
+		[]
+	);
+	const createNote = useCallback(async () => {
+		if (!sessionId) {
+			console.error('No session ID found');
+			return;
+		}
 
 		try {
 			const response = await fetch(
@@ -33,7 +35,7 @@ export const useCreateNote = () => {
 		} catch (error) {
 			console.error('Error saving note:', error);
 		}
-	}, [sessionId]);
+	}, [sessionId, fetchOptions]);
 
 	return createNote;
 };

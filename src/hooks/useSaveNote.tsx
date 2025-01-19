@@ -1,9 +1,14 @@
 'use client';
+import { NotesContext } from '@/components/ContextProvider/ContextProvider';
 import Cookies from 'js-cookie';
-import { useCallback } from 'react';
+import { useCallback, useContext, useState } from 'react';
 
-export const useSaveNote = (noteId: string) => {
+export const useSaveNote = (noteId?: string) => {
+	const [isSaving, setIsSaving] = useState(false);
+	const notesContext = useContext(NotesContext);
+
 	const sessionId = Cookies.get('surfenotes-id');
+    
 
 	const saveNote = useCallback(
 		async (data: string) => {
@@ -21,20 +26,35 @@ export const useSaveNote = (noteId: string) => {
 			};
 
 			try {
-				const response = await fetch(
-					`https://challenge.surfe.com/${sessionId}/notes/${noteId}`,
-					fetchOptions
-				);
+				notesContext?.updateIsNoteSaving(true);
+				const response = await new Promise<Response>((resolve, reject) => {
+					fetch(
+						`https://challenge.surfe.com/${sessionId}/notes/${noteId}`,
+						fetchOptions
+					)
+						.then((response) => {
+							if (response.ok) {
+								notesContext?.updateIsNoteSaving(false);
+								resolve(response);
+							} else {
+								reject(new Error('Network response was not ok'));
+							}
+						})
+						.catch((error) => {
+							reject(error);
+						});
+				});
 
 				if (!response.ok) {
 					throw new Error('Network response was not ok');
 				}
 			} catch (error) {
 				console.error('Error saving note:', error);
+				setIsSaving(false);
 			}
 		},
 		[sessionId, noteId]
 	);
 
-	return saveNote;
+	return { saveNote, isSaving };
 };
