@@ -1,21 +1,36 @@
+'use client';
 import Image from 'next/image';
-import SurfeLogo from '@images/surfe_black_logo.webp';
+import SurfeLogoDark from '@images/surfe_black_logo.webp';
+import SurfeLogoWhite from '@images/surfe_white_logo.webp';
 import { Logout } from '../Logout/Logout';
 import { AddNote } from '../AddNote/AddNote';
+import { useTheme } from '../ThemeProvider/ThemeProvider';
 
 type HeaderProps = {
 	onCreateNote: () => void;
 };
 
 export const Header = ({ onCreateNote }: HeaderProps) => {
+	const { theme } = useTheme();
+
+	const serveProperLogo = () => {
+		if (theme === 'light') {
+			return SurfeLogoDark;
+		} else {
+			return SurfeLogoWhite;
+		}
+	};
+
+	console.log('serveProperLogo', serveProperLogo());
 	return (
 		<header className='flex flex-col md:flex-row items-center justify-between w-full h-auto md:h-28 gap-4'>
 			<div className='flex flex-row gap-2 items-center'>
 				<Image
-					src={SurfeLogo}
+					src={serveProperLogo()}
 					alt=''
 					width={150}
 					height={50}
+					draggable={false}
 					className='w-[100px] md:w-[150px] h-[30px] md:h-[50px]'
 				/>
 				<span className='text-xl p-2 md:p-4 md:text-[60px] font-bold bg-secondary text-white'>

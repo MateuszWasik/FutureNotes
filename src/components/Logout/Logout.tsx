@@ -13,7 +13,7 @@ export const Logout = () => {
 	return (
 		<button
 			onClick={handleOnLogout}
-			className='p-3 font-bold rounded-md bg-secondary text-white'
+			className='p-3 font-bold rounded-md bg-horizon text-secondary'
 		>
 			Log off
 		</button>

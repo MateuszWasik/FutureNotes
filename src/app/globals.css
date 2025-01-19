@@ -7,18 +7,31 @@
 	--primary: 187 237 252;
 	--secondary: 8 39 42;
 	--sky100: 253 250 254;
-	--sky200: 209 242 253;
+	--sky200: 8 39 42;
 	--sky300: 189 237 252;
+	--horizon: 255 146 84;
+	--singleNoteBg: 255 255 255;
+	--basicText: 8 39 42;
+	--textAreaBg: 255 255 2550;
+	--horizon300: 255 146 84;
+	--loginBg: 187 237 252;
+	--loginLogoBg: 8 39 42;
 }
 
-/* If I will have time I will make dark mode as well */
 .dark {
 	--background: 8 39 42;
 	--primary: 8 39 42;
-	--secondary: 187 237 252;
+	--secondary: 8 39 42;
 	--sky100: 8 39 42;
-	--sky200: 8 39 42;
-	--sky300: 8 39 42;
+	--sky200: 209 242 253;
+	--sky300: 189 237 252;
+	--horizon: 255 207 180;
+	--singleNoteBg: 7 55 66;
+	--textAreaBg: 56 118 135;
+	--horizon300: 255 146 84;
+	--basicText: 255 255 255;
+	--loginBg: 17, 24, 39;
+	--loginLogoBg: 187 237 252;
 }
 
 body {

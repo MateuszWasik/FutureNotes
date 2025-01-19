@@ -14,6 +14,11 @@ export const placeMentionAtProperPosition = (
 	const traverseAndInsert = (node: Node): boolean => {
 		if (node.nodeType === Node.TEXT_NODE) {
 			const textLength = node.textContent?.length || 0;
+
+			// offset when is 0 will be the first text node but 
+			// we have to use different values for caret position to
+			// get before and after text
+			// thats why we have to split it into two if's
 			if (offset + textLength >= position) {
 				if (offset === 0) {
 					const splitAfter = position + userTypedMention + 1;

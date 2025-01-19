@@ -3,16 +3,26 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import LoginImage from '@images/login_page_image.webp';
-import SurfeLogo from '@images/surfe_black_logo.webp';
 import { loginConst } from './login-const';
 import { useRouter } from 'next/navigation';
 import { v4 as uuidv4 } from 'uuid';
 import Cookies from 'js-cookie';
+import SurfeLogoDark from '@images/surfe_black_logo.webp';
+import SurfeLogoWhite from '@images/surfe_white_logo.webp';
+import { useTheme } from '@/components/ThemeProvider/ThemeProvider';
 
 export default function LoginPage() {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
+	const { theme } = useTheme();
 
+	const serveProperLogo = () => {
+		if (theme === 'light') {
+			return SurfeLogoWhite;
+		} else {
+			return SurfeLogoDark;
+		}
+	};
 	const router = useRouter();
 
 	const searchForUser = (email: string, password: string) => {
@@ -39,17 +49,19 @@ export default function LoginPage() {
 		}
 	};
 	return (
-		<section className='flex justify-center items-center h-screen mx-auto bg-[#111827]'>
+		<section className='flex justify-center items-center h-screen mx-auto bg-loginBg'>
 			<div className='grid md:grid-cols-2 gap-5 place-items-center h-[400px]'>
 				<div className='md:col-span-1'>
 					<div className='form flex flex-col item-center justify-center'>
 						<div className='flex flex-wrap items-center flex-1 flex-row tracking-tight xl:tracking-tighter mb-3 gap-x-2 font-bold text-2xl lg:text-3xl xl:text-4xl'>
-							<h1 className='pl-3 md:pl-0 text-sky200'>Welcome to</h1>
+							<h1 className='pl-3 md:pl-0 text-secondary dark:text-white'>
+								Welcome to
+							</h1>
 							<div className='flex'>
 								<Image
-									className='p-4 w-[150px] h-[70px] bg-primary'
-									src={SurfeLogo}
-									alt=''
+									className='p-4 w-[150px] h-[70px] bg-loginLogoBg'
+									src={serveProperLogo()}
+									alt='Surfe logo'
 									width={150}
 									height={70}
 									draggable={false}
@@ -64,7 +76,7 @@ export default function LoginPage() {
 								onChange={(e) => setEmail(e.target.value)}
 								id='form_email'
 								type='text'
-								className='appearance-none bg-[#2e416d] focus:outline-none focus:outline-funBlue h-9 rounded-md text-white px-2'
+								className='appearance-none bg-sky100 dark:bg-[#2e416d] focus:outline-none focus:outline-secondary dark:focus:outline-sky200 h-9 rounded-md text-secondary dark:text-white px-2'
 							/>
 							<label
 								htmlFor='form_password'
@@ -76,21 +88,21 @@ export default function LoginPage() {
 								onChange={(e) => setPassword(e.target.value)}
 								id='form_password'
 								type='password'
-								className='appearance-none bg-[#2e416d] focus:outline-none focus:outline-funBlue h-9 rounded-md text-white px-2'
+								className='appearance-none text-secondary dark:text-white bg-sky100 dark:bg-[#2e416d] focus:outline-none focus:outline-secondary dark:focus:outline-sky200 h-9 rounded-md px-2'
 							/>
 							<div className='flex justify-between items-center mt-4'>
 								<button
 									onClick={() => {
 										handleOnLogin();
 									}}
-									className='block px-4 py-2 text-secondary bg-primary rounded-lg bg-funBlue text-lg font-bold tracking-tight xl:tracking-tighter w-fit text-center'
+									className='block px-4 py-2 text-white dark:text-secondary bg-secondary dark:bg-sky200 rounded-lg text-lg text-center font-bold tracking-tight xl:tracking-tighter w-fit '
 								>
 									Log in
 								</button>
 								<a
 									role='link'
 									href=''
-									className='block font-semibold text-sky200'
+									className='block font-semibold text-secondary dark:text-sky200'
 								>
 									Forget password?
 								</a>

@@ -261,7 +261,7 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 	return (
 		<div className='relative h-full w-full'>
 			<div
-				className=' w-full max-w-[700px] h-full p-3 overflow-y-scroll whitespace-pre-wrap break-words border border-gray-300 rounded-md focus-visible:outline-none'
+				className=' w-full text-basicText bg-textAreaBg max-w-[700px] h-full p-3 overflow-y-auto whitespace-pre-wrap break-words border-l border-gray-300 dark:border-none focus-visible:outline-none'
 				contentEditable
 				ref={contentEditableDivRef}
 				onKeyDown={handleOnKeyDown}
@@ -270,7 +270,7 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 
 			{showSuggestions && (
 				<ul
-					className='absolute  cursor-default bg-white shadow-md w-[200px]'
+					className='absolute  cursor-default bg-singleNoteBg shadow-md w-[200px]'
 					style={{
 						top: caretAbsoluteCoordinates.top + 20,
 						left: caretAbsoluteCoordinates.left + 10,
@@ -281,7 +281,7 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 						return (
 							<li
 								key={user.username}
-								className='p-2 hover:bg-gray-200'
+								className='p-2 hover:bg-sky300 text-basicText hover:text-secondary cursor-pointer'
 								onClick={handleInsertMention}
 							>
 								<span className='capitalize'>
