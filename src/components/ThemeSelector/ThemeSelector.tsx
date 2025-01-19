@@ -12,7 +12,7 @@ export const ThemeSelector = () => {
 				className='p-3 font-bold rounded-md bg-sky300 text-secondary'
 				onClick={toggleTheme}
 			>
-				{theme === 'light' ? 'Make it darker' : 'Make it lighter'}
+				{theme === 'light' ? 'Make it darker' : 'Make it brigther'}
 			</button>
 		</div>
 	);
