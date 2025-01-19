@@ -9,32 +9,32 @@ export type Note = {
 
 export const useGetNote = () => {
 	const [notes, setNotes] = useState<Note[]>([]);
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState(false);
-	const [reload, setReload] = useState(false);
 
 	const sessionId = Cookies.get('surfenotes-id');
 
-	const reloadNotes = useCallback(() => {
-		setReload((prev) => !prev);
-	}, []);
+	const getNote = useCallback(async () => {
+		if (!sessionId) {
+			console.warn('No sessionId found.');
+			return;
+		}
+
+		try {
+			const response = await fetch(
+				`https://challenge.surfe.com/${sessionId}/notes`
+			);
+			if (!response.ok) {
+				throw new Error('Network response was not ok');
+			}
+			const data = await response.json();
+			setNotes(data);
+		} catch (error) {
+			console.error('Error fetching notes:', error);
+		}
+	}, [sessionId]);
 
 	useEffect(() => {
-		const getNote = async () => {
-			try {
-				const res = await fetch(
-					`https://challenge.surfe.com/${sessionId}/notes`
-				);
-				const data = await res.json();
-				setNotes(data);
-				setLoading(false);
-			} catch {
-				setError(true);
-				setLoading(false);
-			}
-		};
 		getNote();
-	}, [sessionId, reload]);
+	}, [getNote]);
 
-	return { notes, loading, error, reloadNotes };
+	return { notes, reloadNotes: getNote };
 };

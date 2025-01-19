@@ -9,11 +9,9 @@ import { createPortal } from 'react-dom';
 export default function Dashboard() {
 	const [showModal, setShowModal] = useState(false);
 	const [clickedNote, setClickedNote] = useState<Note>({ id: '', body: '' });
-	const { notes, loading, reloadNotes } = useGetNote();
+	const { notes, reloadNotes } = useGetNote();
 
 	useEffect(() => {
-		if (loading) return;
-
 		const storagedNoteId = localStorage.getItem('note-id');
 
 		if (storagedNoteId) {
@@ -23,7 +21,7 @@ export default function Dashboard() {
 				setShowModal(true);
 			}
 		}
-	}, [loading, notes]);
+	}, [notes]);
 
 	const handleOnNoteOpen = (note: Note) => {
 		setShowModal(true);

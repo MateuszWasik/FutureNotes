@@ -19,16 +19,20 @@ export const useGetUsers = () => {
 			};
 
 			try {
-				const response = await fetch(
-					`https://challenge.surfe.com/users`,
-					fetchOptions
-				);
+				const response = await new Promise<Response>((resolve, reject) => {
+					fetch(`https://challenge.surfe.com/users`, fetchOptions)
+						.then((response) => {
+							if (response.ok) {
+								resolve(response);
+							} else {
+								reject(new Error('Network response was not ok'));
+							}
+						})
+						.catch((error) => {
+							reject(error);
+						});
+				});
 				const data = await response.json();
-
-				if (!response.ok) {
-					throw new Error('Network response was not ok');
-				}
-
 				setUsers(data);
 			} catch (error) {
 				console.error('Error saving note:', error);
