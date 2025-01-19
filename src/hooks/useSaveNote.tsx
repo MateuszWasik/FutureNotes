@@ -1,5 +1,5 @@
 'use client';
-import { NotesContext } from '@/components/ContextProvider/ContextProvider';
+import { NotesContext } from '@/components/NotesContextProvider/NotesContextProvider';
 import Cookies from 'js-cookie';
 import { useCallback, useContext, useState } from 'react';
 
@@ -8,7 +8,6 @@ export const useSaveNote = (noteId?: string) => {
 	const notesContext = useContext(NotesContext);
 
 	const sessionId = Cookies.get('surfenotes-id');
-    
 
 	const saveNote = useCallback(
 		async (data: string) => {
@@ -53,7 +52,8 @@ export const useSaveNote = (noteId?: string) => {
 				setIsSaving(false);
 			}
 		},
-		[sessionId, noteId]
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[noteId, sessionId]
 	);
 
 	return { saveNote, isSaving };

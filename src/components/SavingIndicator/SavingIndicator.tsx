@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { NotesContext } from '../ContextProvider/ContextProvider';
+import { NotesContext } from '../NotesContextProvider/NotesContextProvider';
 
 export const SavingIndicator = () => {
 	const notesContext = useContext(NotesContext);

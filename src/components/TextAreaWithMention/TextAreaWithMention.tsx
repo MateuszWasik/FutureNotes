@@ -4,6 +4,9 @@ import { useGetUsers, User } from '@/hooks/useGetUsers';
 import { useSaveNote } from '@/hooks/useSaveNote';
 import React, { useState, useRef, useEffect } from 'react';
 import { filterMentionUsers } from './utils/filterMentionUsers';
+import { createMentionSpan } from './utils/createMentionSpan';
+import { calculateCaretOffset } from './utils/calculateCaretOffset';
+import { placeMentionAtProperPosition } from './utils/placeMentionAtProperPosition';
 
 type MentionTextareaProps = {
 	note: Note;
@@ -37,15 +40,6 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
-	const handleOnChange = (event: React.ChangeEvent<HTMLDivElement>) => {
-		const textValueAsHTML = event.target.innerHTML;
-		const textValue = event.target.textContent;
-		if (textValue === null) return;
-		setInputValue(textValue);
-		setInputValueAsHTML(textValueAsHTML);
-		localStorage.setItem('note-edit', textValue);
-	};
-
 	useEffect(() => {
 		if (!localStorage.getItem('note-id')) {
 			localStorage.setItem('note-id', note.id);
@@ -54,12 +48,25 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 		localStorage.setItem('note-edit', debouncedValue);
 	}, [note.id, debouncedValue]);
 
+	// usEffect for deboucing and saving a note
 	useEffect(() => {
 		if (debouncedValue && debouncedValue !== previousValue.current) {
 			saveNote(debouncedValue);
 			previousValue.current = debouncedValue;
 		}
 	}, [debouncedValue, saveNote, inputValue]);
+
+	// that's the main function for handling note saving
+	// it will invoke another useEffect
+	// that will save the note
+	const handleOnChange = (event: React.ChangeEvent<HTMLDivElement>) => {
+		const textValueAsHTML = event.target.innerHTML;
+		const textValue = event.target.textContent;
+		if (textValue === null) return;
+		setInputValue(textValue);
+		setInputValueAsHTML(textValueAsHTML);
+		localStorage.setItem('note-edit', textValue);
+	};
 
 	const handleOnInput = (event: React.FormEvent<HTMLDivElement>) => {
 		const userText = (event.target as HTMLDivElement).textContent;
@@ -150,7 +157,8 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 			if (currentNode.nodeType === Node.TEXT_NODE) {
 				const parentElement = currentNode.parentElement;
 
-				// if inside a parent element (like a span or div), insert the new div after the current node
+				// if inside a parent element (like a span or div), insert the new div 
+				// after the current node
 				if (parentElement) {
 					const parentDiv = parentElement.closest('div');
 					if (parentDiv) {
@@ -184,13 +192,14 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 			);
 			const userText = contentEditableDivRef.current?.textContent;
 
+			// we need to check if user deletes the @ symbol to close the 
+			// suggestion box and reset all the supported states
 			if (userText?.[caretPosition - 1] === '@') {
 				caretPositionWhenStartMentioning.current = 0;
 
 				// reset all the mention typing "states"
 				isMentionTypingRef.current = false;
 				typedMentionByUserRef.current = 0;
-
 				setShowSuggestions(false);
 			}
 		}
@@ -231,23 +240,13 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 		// calculate true caret position inside the correct node including html tags
 		const caretPosition = calculateCaretOffset(contentEditableDiv, range);
 
-		const mentionSpan = document.createElement('span');
-		mentionSpan.contentEditable = 'false';
-		mentionSpan.className =
-			'capitalize font-bold pointer-events-none select-none inline-block';
-		mentionSpan.textContent = `@${clickedUser}`;
-		mentionSpan.id = new Date().getTime().toString();
+		const mentionSpan = createMentionSpan(clickedUser);
 
-		// check if the span is empty and remove leading @ before inserting new mention span
-		const selectionText = range.startContainer.textContent;
-		if (selectionText && selectionText.startsWith('@')) {
-			range.startContainer.textContent = selectionText.slice(1);
-		}
-
-		const insertedMention = placeMentionAtCaret(
+		const insertedMention = placeMentionAtProperPosition(
 			contentEditableDiv,
 			caretPosition - 1, // -1 because we want to move caret at the position of @ that was typed
-			mentionSpan
+			mentionSpan,
+			typedMentionByUserRef.current
 		);
 
 		if (insertedMention) {
@@ -264,81 +263,6 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 		} else {
 			console.error('Failed to insert mention span');
 		}
-	};
-
-	const calculateCaretOffset = (parent: HTMLElement, range: Range): number => {
-		let offset = 0;
-
-		const traverse = (node: Node) => {
-			if (node === range.startContainer) {
-				offset += range.startOffset;
-				// found the correct node
-				return true;
-			}
-
-			if (node.nodeType === Node.TEXT_NODE) {
-				offset += node.textContent?.length || 0;
-			} else if (node.nodeType === Node.ELEMENT_NODE) {
-				for (const child of Array.from(node.childNodes)) {
-					if (traverse(child)) return true;
-				}
-			}
-			return false;
-		};
-
-		traverse(parent);
-		return offset;
-	};
-
-	const placeMentionAtCaret = (
-		parent: HTMLElement,
-		position: number,
-		mentionSpan: HTMLSpanElement
-	): HTMLSpanElement | null => {
-		let offset = 0;
-
-		const traverseAndInsert = (node: Node): boolean => {
-			if (node.nodeType === Node.TEXT_NODE) {
-				const textLength = node.textContent?.length || 0;
-				if (offset + textLength >= position) {
-					const splitPos = position - offset;
-					const beforeText =
-						node.textContent?.slice(
-							0,
-							splitPos - typedMentionByUserRef.current
-						) || '';
-					// skip the '@'
-					const afterText = node.textContent?.slice(splitPos + 1) || '';
-
-					console.log('current', typedMentionByUserRef.current);
-					console.log('beforeText:', beforeText);
-					console.log('afterText:', afterText);
-
-					const textNode = node as Text;
-					const beforeNode = document.createTextNode(beforeText);
-					const afterNode = document.createTextNode(afterText);
-
-					const parentNode = node.parentNode;
-					if (parentNode) {
-						// replace original text with afterNode
-						parentNode.replaceChild(afterNode, textNode);
-						parentNode.insertBefore(mentionSpan, afterNode);
-						parentNode.insertBefore(beforeNode, mentionSpan);
-
-						return true; // Mention inserted
-					}
-				}
-				offset += textLength;
-			} else if (node.nodeType === Node.ELEMENT_NODE) {
-				for (const child of Array.from(node.childNodes)) {
-					if (traverseAndInsert(child)) return true;
-				}
-			}
-			return false;
-		};
-
-		const inserted = traverseAndInsert(parent);
-		return inserted ? mentionSpan : null;
 	};
 
 	return (
