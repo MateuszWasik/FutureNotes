@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { NotesContextProvider } from '@/components/NotesContextProvider/NotesContextProvider';
+import { ThemeSelector } from '@/components/ThemeSelector/ThemeSelector';
+import { ThemeProvider } from '@/components/ThemeProvider/ThemeProvider';
 
 const inter_init = Inter({
 	subsets: ['latin'],
@@ -22,9 +24,13 @@ export default function RootLayout({
 }>) {
 	return (
 		<html lang='en' className='light'>
-			<head></head>
-			<body className={`${inter_init.className} bg-sky100 antialiased`}>
-				<NotesContextProvider>{children}</NotesContextProvider>
+			<body
+				className={`${inter_init.className} relative bg-sky100 antialiased`}
+			>
+				<ThemeProvider>
+					<ThemeSelector />
+					<NotesContextProvider>{children}</NotesContextProvider>
+				</ThemeProvider>
 			</body>
 		</html>
 	);

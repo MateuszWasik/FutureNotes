@@ -26,10 +26,10 @@ export const Modal = ({ note, onClose }: ModalProps) => {
 	}, []);
 
 	return (
-		<div className='fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-row w-full max-w-[800px] h-dvh md:h-[600px] rounded-md bg-white'>
-			<div className='flex flex-col justify-between items-center py-4 w-24'>
+		<div className='fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-row w-full max-w-[750px] h-dvh md:h-[600px]'>
+			<div className='flex flex-col justify-between items-center py-4 w-24 bg-singleNoteBg'>
 				<div className='flex flex-col gap-4 items-center'>
-					<ul className='flex flex-col gap-2 justify-center w-12 bg-white'>
+					<ul className='flex flex-col gap-2 justify-center w-12 bg-transparent'>
 						{Array.from({ length: 6 }).map((_, index) => (
 							<li key={index}>
 								<Image src={SurfeOption} alt='' draggable={false} />
@@ -40,13 +40,13 @@ export const Modal = ({ note, onClose }: ModalProps) => {
 				</div>
 
 				<button
-					className='bg-secondary font-semibold text-white p-2 rounded-lg'
+					className='bg-sky300 text-secondary font-semibold p-2 rounded-lg'
 					onClick={handleOnClose}
 				>
 					Close
 				</button>
 			</div>
-			<div className='p-4 pl-0 w-full'>
+			<div className='w-full'>
 				<MentionTextarea note={note} />
 			</div>
 		</div>
