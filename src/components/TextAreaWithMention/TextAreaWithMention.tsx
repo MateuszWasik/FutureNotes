@@ -111,8 +111,14 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 
 			// we want to watch how many characters user typed after @
 			// so we can adjust the caret position when user selects a user from the list
-			typedMentionByUserRef.current =
-				caretPositionWhenStartMentioning.current - caretPosition;
+			// we are subtracting 1 from caretPositionWhenStartMentioning.current
+			// if user typed something after @
+			// otherwise we will keep the caret position as it is
+			const caretPositionBeforeAtSign =
+				typedMentionByUserRef.current === 0
+					? caretPositionWhenStartMentioning.current - 1
+					: caretPositionWhenStartMentioning.current;
+			typedMentionByUserRef.current = caretPosition - caretPositionBeforeAtSign;
 
 			setMentionUsers(mentionUser);
 		}
@@ -296,9 +302,17 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 				const textLength = node.textContent?.length || 0;
 				if (offset + textLength >= position) {
 					const splitPos = position - offset;
-					const beforeText = node.textContent?.slice(0, splitPos) || '';
+					const beforeText =
+						node.textContent?.slice(
+							0,
+							splitPos - typedMentionByUserRef.current
+						) || '';
 					// skip the '@'
 					const afterText = node.textContent?.slice(splitPos + 1) || '';
+
+					console.log('current', typedMentionByUserRef.current);
+					console.log('beforeText:', beforeText);
+					console.log('afterText:', afterText);
 
 					const textNode = node as Text;
 					const beforeNode = document.createTextNode(beforeText);
