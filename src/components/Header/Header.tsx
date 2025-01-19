@@ -21,7 +21,6 @@ export const Header = ({ onCreateNote }: HeaderProps) => {
 		}
 	};
 
-	console.log('serveProperLogo', serveProperLogo());
 	return (
 		<header className='flex flex-col md:flex-row items-center justify-between w-full h-auto md:h-28 gap-4'>
 			<div className='flex flex-row gap-2 items-center'>
