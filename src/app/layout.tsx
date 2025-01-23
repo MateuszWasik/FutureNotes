@@ -13,8 +13,8 @@ const inter_init = Inter({
 });
 
 export const metadata: Metadata = {
-	title: 'SurfeNotes - Surfe through notes',
-	description: 'Surfe way of taking notes',
+	title: 'FutureNotes - surf through notes',
+	description: 'Future way of taking notes',
 };
 
 export default function RootLayout({
