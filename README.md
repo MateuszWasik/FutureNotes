@@ -1,6 +1,6 @@
-# 📝 SurfeNotes App Challenge
+# 📝 FutureNotes App Challenge
 
-This repository contains a note-taking application built as part of a coding challenge for **Surfe**. The app includes core features like saving and loading notes, as well as an @mention functionality. Additionally, it includes a login page and a theme selector for toggling between light and dark modes.
+The app includes core features like saving and loading notes, as well as an @mention functionality. Additionally, it includes a login page and a theme selector for toggling between light and dark modes.
 
 ## 🚀 Features
 
@@ -33,7 +33,7 @@ This repository contains a note-taking application built as part of a coding cha
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/MateuszWasik/SurfeNotes.git
+   git clone https://github.com/MateuszWasik/FutureNotes.git
    cd SurfeNotes
    ```
 2. Install dependecies:
@@ -48,16 +48,6 @@ This repository contains a note-taking application built as part of a coding cha
    ```
 
 Open your browser at http://localhost:3000.
-
-## 🌐 API Endpoints
-
-The app interacts with a mock backend provided by Surfe:
-
-- **POST** `https://challenge.surfe.com/SESSION/notes`
-- **PUT** `https://challenge.surfe.com/SESSION/notes/{ID}`
-- **GET** `https://challenge.surfe.com/SESSION/notes`
-- **GET** `https://challenge.surfe.com/SESSION/notes/{ID}`
-- **GET** `https://challenge.surfe.com/users`
 
 ## 📜 License
 
