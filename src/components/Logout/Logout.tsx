@@ -7,7 +7,7 @@ export const Logout = () => {
 	const router = useRouter();
 
 	const handleOnLogout = () => {
-		Cookies.remove('surfenotes-id');
+		Cookies.remove('futurenotes-id');
 		router.push('/');
 	};
 	return (

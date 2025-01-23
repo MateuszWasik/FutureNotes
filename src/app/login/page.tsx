@@ -1,28 +1,14 @@
 'use client';
 
 import React, { useState } from 'react';
-import Image from 'next/image';
-import LoginImage from '@images/login_page_image.webp';
 import { loginConst } from './login-const';
 import { useRouter } from 'next/navigation';
 import { v4 as uuidv4 } from 'uuid';
 import Cookies from 'js-cookie';
-import SurfeLogoDark from '@images/surfe_black_logo.webp';
-import SurfeLogoWhite from '@images/surfe_white_logo.webp';
-import { useTheme } from '@/components/ThemeProvider/ThemeProvider';
 
 export default function LoginPage() {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
-	const { theme } = useTheme();
-
-	const serveProperLogo = () => {
-		if (theme === 'light') {
-			return SurfeLogoWhite;
-		} else {
-			return SurfeLogoDark;
-		}
-	};
 	const router = useRouter();
 
 	const searchForUser = (email: string, password: string) => {
@@ -38,10 +24,10 @@ export default function LoginPage() {
 		const correctUserData = searchForUser(email, password);
 
 		if (correctUserData) {
-			let userId = Cookies.get('surfenotes-id');
+			let userId = Cookies.get('futurenotes-id');
 			if (!userId) {
 				userId = uuidv4();
-				Cookies.set('surfenotes-id', userId, { expires: 1 });
+				Cookies.set('futurenotes-id', userId, { expires: 1 });
 			}
 			router.push(`/dashboard/${userId}`);
 		} else {
@@ -55,18 +41,9 @@ export default function LoginPage() {
 					<div className='form flex flex-col item-center justify-center'>
 						<div className='flex flex-wrap items-center flex-1 flex-row tracking-tight xl:tracking-tighter mb-3 gap-x-2 font-bold text-2xl lg:text-3xl xl:text-4xl'>
 							<h1 className='pl-3 md:pl-0 text-secondary dark:text-white'>
-								Welcome to
+								Welcome to FUTURE NOTES
 							</h1>
-							<div className='flex'>
-								<Image
-									className='p-4 w-[150px] h-[70px] bg-loginLogoBg'
-									src={serveProperLogo()}
-									alt='Surfe logo'
-									width={150}
-									height={70}
-									draggable={false}
-								/>
-							</div>
+							<div className='flex'></div>
 						</div>
 						<div className='flex flex-col gap-2'>
 							<label htmlFor='form_email' className='pl-2 text-sky200 text-md'>
@@ -110,13 +87,7 @@ export default function LoginPage() {
 						</div>
 					</div>
 				</div>
-				<div className='hidden md:block md:col-span-1 md:col-start-2 object-contain'>
-					<Image
-						src={LoginImage}
-						alt='Four people leaing over a laptop sits on the lap of a person siting on a sofa'
-						height='300'
-					/>
-				</div>
+				<div className='hidden md:block md:col-span-1 md:col-start-2 object-contain'></div>
 			</div>
 		</section>
 	);

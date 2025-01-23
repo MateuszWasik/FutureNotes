@@ -20,7 +20,7 @@ export const useGetUsers = () => {
 
 			try {
 				const response = await new Promise<Response>((resolve, reject) => {
-					fetch(`https://challenge.surfe.com/users`, fetchOptions)
+					fetch(``, fetchOptions)
 						.then((response) => {
 							if (response.ok) {
 								resolve(response);
