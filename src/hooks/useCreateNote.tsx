@@ -24,10 +24,7 @@ export const useCreateNote = () => {
 		}
 
 		try {
-			const response = await fetch(
-				`https://challenge.surfe.com/${sessionId}/notes`,
-				fetchOptions
-			);
+			const response = await fetch(``, fetchOptions);
 
 			if (!response.ok) {
 				throw new Error('Network response was not ok');

@@ -1,7 +1,5 @@
 import React, { useEffect } from 'react';
-import Image from 'next/image';
 
-import SurfeOption from '@images/surfe_option.webp';
 import { Note } from '@/hooks/useGet';
 import { MentionTextarea } from '../TextAreaWithMention/TextAreaWithMention';
 import { SavingIndicator } from '../SavingIndicator/SavingIndicator';
@@ -31,9 +29,7 @@ export const Modal = ({ note, onClose }: ModalProps) => {
 				<div className='flex flex-col gap-4 items-center'>
 					<ul className='flex flex-col gap-2 justify-center w-12 bg-transparent'>
 						{Array.from({ length: 6 }).map((_, index) => (
-							<li key={index}>
-								<Image src={SurfeOption} alt='' draggable={false} />
-							</li>
+							<li key={index}></li>
 						))}
 					</ul>
 					<SavingIndicator />

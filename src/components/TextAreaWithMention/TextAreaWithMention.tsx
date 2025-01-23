@@ -75,6 +75,8 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 		const caretPosition = getCaretCharacterOffsetWithin(
 			contentEditableDivRef.current
 		);
+
+		console.log('Caret Position inside On Input', caretPosition);
 		const divPosition = contentEditableDivRef.current?.getBoundingClientRect();
 
 		if (divPosition === undefined) return;
@@ -136,6 +138,9 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 			event.preventDefault();
 
 			const selection = window.getSelection();
+			// rangeCount will be 1 if someone clicks on the contentEditableDiv
+			// even if no text is selected
+			// 0 will be on initial load
 			if (!selection || selection.rangeCount === 0) {
 				console.error('No valid selection');
 				return;
@@ -188,6 +193,8 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 			const caretPosition = getCaretCharacterOffsetWithin(
 				contentEditableDivRef.current as HTMLElement
 			);
+			console.log('Caret Position inside on backspace', caretPosition);
+
 			const userText = contentEditableDivRef.current?.textContent;
 
 			// we need to check if user deletes the @ symbol to close the
@@ -211,12 +218,29 @@ export const MentionTextarea = ({ note }: MentionTextareaProps) => {
 
 			if (windowSelection !== null && windowSelection.rangeCount > 0) {
 				if (windowSelectionRange === undefined) return 0;
+
+				// cloning Range of the windowSelection to check how many characters are before the caret
+				// to get the actual caret position within the node
+				// we want to clone it because we don't want to change the actual selection
+				// we will then
 				const preCaretRange = windowSelectionRange.cloneRange();
 				preCaretRange.selectNodeContents(element);
+
+				// endConintainer is a container node in which the selection ends
+				// if we add Mention Span, add space and then check the endContainer
+				// it will be empty because we are in the different/new text node
+				// end offset is the number from the beginning of the node that
+				// we currently in. On each input that number will grow
+
 				preCaretRange.setEnd(
 					windowSelectionRange.endContainer,
 					windowSelectionRange.endOffset
 				);
+
+				console.log('preCaretRange', preCaretRange.toString());
+
+				// toString is required to get the actual text content withhin the range
+				// to be able to count the characters
 				caretOffset = preCaretRange.toString().length;
 			}
 		}

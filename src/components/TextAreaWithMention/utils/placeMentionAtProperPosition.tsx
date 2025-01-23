@@ -19,6 +19,12 @@ export const placeMentionAtProperPosition = (
 			// we have to use different values for caret position to
 			// get before and after text
 			// thats why we have to split it into two if's
+			// offset is a cumulative position within the parent node
+			// offset is 0 for example in the first text node
+			// if we write @ mention after Write your note here,
+			// offset will be zero, because we didn't had a chance
+			// to go to a another node and then to add the textContent
+			
 			if (offset + textLength >= position) {
 				if (offset === 0) {
 					const splitAfter = position + userTypedMention + 1;
@@ -26,13 +32,16 @@ export const placeMentionAtProperPosition = (
 					// skip the '@'
 					const afterText = node.textContent?.slice(splitAfter) || '';
 
-					const textNode = node as Text;
 					const beforeNode = document.createTextNode(beforeText);
 					const afterNode = document.createTextNode(afterText);
 
+					console.log('offset', offset);
+					console.log('beforenode', beforeNode);
+					console.log('afternode', afterNode);
+
 					const parentNode = node.parentNode;
 					if (parentNode) {
-						parentNode.replaceChild(afterNode, textNode);
+						parentNode.replaceChild(afterNode, node);
 						parentNode.insertBefore(mentionSpan, afterNode);
 						parentNode.insertBefore(beforeNode, mentionSpan);
 
@@ -45,13 +54,12 @@ export const placeMentionAtProperPosition = (
 					// skip the '@'
 					const afterText = node.textContent?.slice(splitPostAfter) || '';
 
-					const textNode = node as Text;
 					const beforeNode = document.createTextNode(beforeText);
 					const afterNode = document.createTextNode(afterText);
 
 					const parentNode = node.parentNode;
 					if (parentNode) {
-						parentNode.replaceChild(afterNode, textNode);
+						parentNode.replaceChild(afterNode, node);
 						parentNode.insertBefore(mentionSpan, afterNode);
 						parentNode.insertBefore(beforeNode, mentionSpan);
 

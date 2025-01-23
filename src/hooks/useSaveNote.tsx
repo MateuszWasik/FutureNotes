@@ -27,10 +27,7 @@ export const useSaveNote = (noteId?: string) => {
 			try {
 				notesContext?.updateIsNoteSaving(true);
 				const response = await new Promise<Response>((resolve, reject) => {
-					fetch(
-						`https://challenge.surfe.com/${sessionId}/notes/${noteId}`,
-						fetchOptions
-					)
+					fetch(``, fetchOptions)
 						.then((response) => {
 							if (response.ok) {
 								notesContext?.updateIsNoteSaving(false);
